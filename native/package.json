@@ -1,0 +1,20 @@
+{
+  "name": "dawaam-android",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "DAWAAM Android native local notifications prototype",
+  "scripts": {
+    "prepare:web": "node ./prepare.mjs",
+    "build:bridge": "esbuild ./bridge.js --bundle --minify --format=iife --platform=browser --outfile=./www/native-bridge.js"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/local-notifications": "^8.3.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0",
+    "esbuild": "^0.25.0"
+  }
+}
