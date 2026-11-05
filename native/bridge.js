@@ -65,55 +65,92 @@ if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
     } finally { db.close(); }
   }
 
-  function makeSchedule(key, i, item, target, special) {
-    if (!item || item.enabled !== true || !/^([01]\d|2[0-3]):[0-5]\d$/.test(item.time)) return null;
-    if (special && (key.startsWith('prayer:') || key === 'target:dhuha')) return null;
+  // Untuk Android, tanggal/jam konkret terbukti lebih mudah diuji dibanding pola on/cron.
+  // Setiap kali DAWAAM dibuka atau pengaturan disimpan, antrian 7 hari diperbarui.
+  // Target mingguan/bulanan ditambahkan sampai 35 hari supaya jadwal langka tidak terlewat.
+  const maxPerKey = 50;
+  function makeSchedule(key, i, item, target, special, now) {
+    if (!item || item.enabled !== true || !/^([01]\d|2[0-3]):[0-5]\d$/.test(item.time)) return [];
+    if (special && (key.startsWith('prayer:') || key === 'target:dhuha')) return [];
     const isTarget = key.startsWith('target:');
-    if (isTarget && target?.enabled !== true) return null;
+    if (isTarget && target?.enabled !== true) return [];
     const [hour, minute] = item.time.split(':').map(Number);
-    const on = { hour, minute, second: 0 };
-    if (isTarget && target.frequency === 'weekly') {
-      if (!Number.isInteger(target.weekday) || target.weekday < 0 || target.weekday > 6) return null;
-      on.weekday = target.weekday + 1; // Capacitor: Ahad=1, Senin=2, ..., Sabtu=7.
-    }
-    if (isTarget && target.frequency === 'monthly') {
-      if (!Number.isInteger(target.monthday) || target.monthday < 1 || target.monthday > 28) return null;
-      on.day = target.monthday;
-    }
+    const frequency = isTarget ? target.frequency : 'daily';
+    const horizon = frequency === 'daily' ? 7 : 35;
+    const results = [];
     const name = key.startsWith('prayer:') ? key.split(':')[1] : targetNames[key.split(':')[1]];
-    return {
-      id: baseId + i,
-      title: 'DAWAAM • ' + name,
-      channelId,
-      body: 'Saatnya menjaga kebiasaan baik. Mulai dari yang mampu.',
-      schedule: { on, allowWhileIdle: true },
-      isExactNotification: false,
-      autoCancel: true
-    };
+    for (let offset = 0; offset < horizon; offset++) {
+      const at = new Date(now.getFullYear(),now.getMonth(),now.getDate() + offset,hour,minute,0,0);
+      if (at.getTime() <= now.getTime() + 10000) continue;
+      if (frequency === 'weekly' && at.getDay() !== target.weekday) continue;
+      if (frequency === 'monthly' && at.getDate() !== target.monthday) continue;
+      results.push({
+        id: baseId + i * maxPerKey + offset,
+        title: 'DAWAAM • ' + name,
+        channelId,
+        body: 'Saatnya menjaga kebiasaan baik. Mulai dari yang mampu.',
+        schedule: { at, allowWhileIdle: true },
+        isExactNotification: false,
+        autoCancel: true,
+        extra: { dawaamKey: key, scheduledAt: at.toISOString() }
+      });
+    }
+    return results;
   }
 
   async function sync() {
-    if (busy) return;
+    if (busy) {
+      say('Pengingat sedang diproses. Klik Daftarkan Jadwal sekali lagi setelah selesai.');
+      return;
+    }
     busy = true;
     try {
       const permission = await LocalNotifications.checkPermissions();
       if (permission.display !== 'granted') {
-        say('Notifikasi belum diizinkan. Klik Aktifkan Notifikasi Android.');
+        say('Notifikasi belum diizinkan. Klik Aktifkan Notifikasi.', true);
         return;
       }
       await ensureChannel();
       const { reminders, targets, special } = await readData();
+      const now = new Date();
+      const items = keys.flatMap((key,i) =>
+        makeSchedule(key,i,reminders[key],targets[key.split(':')[1]],special,now)
+      );
       const pending = await LocalNotifications.getPending();
       const ours = (pending.notifications || [])
-        .filter(n => n.id >= baseId && n.id < baseId + keys.length)
+        .filter(n => n.id >= baseId && n.id < baseId + maxPerKey * keys.length)
         .map(n => ({ id: n.id }));
       if (ours.length) await LocalNotifications.cancel({ notifications: ours });
-      const items = keys.map((key,i) => makeSchedule(key,i,reminders[key],targets[key.split(':')[1]],special)).filter(Boolean);
       if (items.length) await LocalNotifications.schedule({ notifications: items });
-      say('✓ ' + items.length + ' pengingat aktif di Android.' + (special ? ' Pengingat shalat disembunyikan saat mode haid/nifas aktif.' : ''));
-    } catch (error) {
-      console.error('DAWAAM notifikasi:', error);
-      say('Gagal mengatur notifikasi: ' + (error?.message || 'periksa izin aplikasi'), true);
+      const confirmation = await LocalNotifications.getPending();
+      const registered = (confirmation.notifications || []).filter(n =>
+        n.id >= baseId && n.id < baseId + maxPerKey * keys.length
+      );
+      const idx = keys.indexOf('target:tilawah');
+      const tilawahPending = registered.filter(n =>
+        n.id >= baseId + idx * maxPerKey && n.id < baseId + (idx+1)*maxPerKey
+      );
+      const tilawahSetting = reminders['target:tilawah'];
+      const tilawahTarget = targets.tilawah;
+      let note = 'Alarm Android tercatat: ' + registered.length + ' dari ' + items.length + ' jadwal.';
+      if (!tilawahTarget?.enabled) {
+        note += '\nTilawah BELUM terdaftar: aktifkan target Tilawah di Atur Target, lalu Simpan Semua Target.';
+      } else if (!tilawahSetting?.enabled) {
+        note += '\nTilawah BELUM terdaftar: aktifkan pengingat Tilawah, pilih jam, lalu Simpan Pengingat.';
+      } else if (!tilawahPending.length) {
+        note += '\nPERHATIAN: Tilawah aktif tetapi tidak ada alarm terdaftar. Klik Periksa Status.';
+      } else {
+        const nearest = items.filter(n => n.extra?.dawaamKey === 'target:tilawah')
+          .sort((a,b) => a.schedule.at - b.schedule.at)[0];
+        note += '\n✓ Tilawah: ' + tilawahPending.length + ' alarm terdaftar. Berikutnya: ' +
+          (nearest ? nearest.schedule.at.toLocaleString('id-ID',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'periksa jadwal');
+      }
+      if (special) note += '\nMode haid/nifas aktif: pengingat shalat fardhu dan Dhuha dikecualikan.';
+      note += '\nJadwal harian disiapkan 7 hari; buka DAWAAM setidaknya seminggu sekali untuk memperbaruinya.';
+      say(note, registered.length !== items.length);
+    } catch(error) {
+      console.error('DAWAAM gagal mengatur pengingat:', error);
+      say('Gagal mendaftarkan jadwal: ' + (error?.message || String(error)), true);
     } finally { busy = false; }
   }
 
@@ -138,29 +175,40 @@ if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
 
   async function checkStatus() {
     try {
-      const [permission, enabled, pending, delivered, channels] = await Promise.all([
+      const [permission, enabled, pending, delivered, channels, saved] = await Promise.all([
         LocalNotifications.checkPermissions(),
         LocalNotifications.areEnabled(),
         LocalNotifications.getPending(),
         LocalNotifications.getDeliveredNotifications(),
-        LocalNotifications.listChannels()
+        LocalNotifications.listChannels(),
+        readData()
       ]);
       const ourChannel = (channels.channels || []).find(ch => ch.id === channelId);
-      const pendingList = (pending.notifications || []);
+      const pendingList = pending.notifications || [];
       const testPending = pendingList.some(n => n.id === testId);
       const deliveredTest = (delivered.notifications || []).some(n => n.id === immediateId || n.id === testId);
-      let msg =
-        'Izin notifikasi: ' + (permission.display === 'granted' ? 'DIIZINKAN' : 'BELUM DIIZINKAN') +
+      const tilawahIndex = keys.indexOf('target:tilawah');
+      const tilawahPending = pendingList.filter(n =>
+        n.id >= baseId + tilawahIndex*maxPerKey && n.id < baseId + (tilawahIndex + 1)*maxPerKey
+      );
+      const allPending = pendingList.filter(n => n.id >= baseId && n.id < baseId + keys.length*maxPerKey);
+      const setting = saved.reminders?.['target:tilawah'];
+      const target = saved.targets?.tilawah;
+      const msg =
+        'Izin: ' + (permission.display === 'granted' ? 'DIIZINKAN' : 'BELUM DIIZINKAN') +
         '\nNotifikasi sistem: ' + (enabled.value ? 'AKTIF' : 'NONAKTIF') +
-        '\nKanal DAWAAM: ' + (!ourChannel ? 'BELUM DIBUAT' : Number(ourChannel.importance) === 0 ? 'DIBLOKIR' : 'AKTIF') +
-        '\nUji terjadwal: ' + (testPending ? 'TERDAFTAR' : 'TIDAK ADA') +
-        '\nUji di panel notifikasi: ' + (deliveredTest ? 'TERLIHAT SISTEM' : 'BELUM TERDETEKSI');
-      if (permission.display !== 'granted' || !enabled.value || Number(ourChannel?.importance) === 0) {
-        msg += '\nBuka Pengaturan Android > Aplikasi > DAWAAM Notifikasi Uji > Notifikasi dan izinkan.';
-      }
-      say(msg, permission.display !== 'granted' || !enabled.value);
+        '\nKanal: ' + (!ourChannel ? 'BELUM DIBUAT' : Number(ourChannel.importance) === 0 ? 'DIBLOKIR' : 'AKTIF') +
+        '\nTarget Tilawah: ' + (target?.enabled ? 'AKTIF' : 'NONAKTIF') +
+        '\nFrekuensi Tilawah: ' + (target?.frequency || 'belum disimpan') +
+        '\nPengingat Tilawah: ' + (setting?.enabled ? 'AKTIF' : 'NONAKTIF') +
+        '\nJam Tilawah: ' + (setting?.time || 'BELUM DIATUR') +
+        '\nAlarm Tilawah terdaftar: ' + tilawahPending.length +
+        '\nSemua alarm ibadah: ' + allPending.length +
+        '\nUji 2 menit: ' + (testPending ? 'TERJADWAL' : deliveredTest ? 'SUDAH TERKIRIM' : 'TIDAK TERDAFTAR') +
+        '\nJika jam telah lewat, jadwal berikutnya bisa terjadi besok atau sesuai frekuensi.';
+      say(msg, permission.display !== 'granted' || !enabled.value || !tilawahPending.length);
     } catch(error) {
-      say('Pemeriksaan status gagal: ' + (error?.message || String(error)), true);
+      say('Gagal memeriksa status: ' + (error?.message || String(error)), true);
     }
   }
 
@@ -228,7 +276,7 @@ if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
     const panel = document.createElement('div');
     panel.className = 'notice';
     const title = document.createElement('strong');
-    title.textContent = 'Uji Notifikasi Android • Diagnostik';
+    title.textContent = 'Pengingat Android • Tilawah & Diagnostik';
     title.style.display = 'block';
     title.style.marginBottom = '10px';
     const enable = document.createElement('button');
@@ -243,21 +291,25 @@ if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
     test.textContent = '3. Uji 2 Menit';
     const statusButton = document.createElement('button');
     statusButton.type = 'button';
-    statusButton.textContent = 'Periksa Status';
+    statusButton.textContent = 'Periksa Status Tilawah';
+    const scheduleButton = document.createElement('button');
+    scheduleButton.type = 'button';
+    scheduleButton.textContent = '4. Daftarkan Jadwal Ibadah';
     const controls = document.createElement('div');
     controls.style.cssText = 'display:flex;flex-wrap:wrap;gap:7px;margin-top:8px';
-    controls.append(enable, now, test, statusButton);
+    controls.append(enable, now, test, scheduleButton, statusButton);
     label = document.createElement('p');
     label.className = 'muted';
     label.style.whiteSpace = 'pre-line';
     label.setAttribute('role','status');
-    label.textContent = 'Mulai dengan tombol Aktifkan Notifikasi, kemudian Uji Sekarang. Lihat juga panel notifikasi HP.';
+    label.textContent = 'Atur target dan jam Tilawah, klik Simpan, lalu klik 4. Daftarkan Jadwal Ibadah dan Periksa Status Tilawah.';
     panel.append(title, controls, label);
     pengingat.append(panel);
     enable.addEventListener('click', activate);
     now.addEventListener('click', testNow);
     test.addEventListener('click', testNotification);
     statusButton.addEventListener('click', checkStatus);
+    scheduleButton.addEventListener('click', sync);
     for (const id of ['saveReminders','saveTargets','haid','restoreBackup']) {
       document.getElementById(id)?.addEventListener('click', scheduleSyncSoon);
       document.getElementById(id)?.addEventListener('change', scheduleSyncSoon);
