@@ -1,5 +1,5 @@
 /* DAWAAM 2F — offline-first shell. Simpan data pribadi hanya pada IndexedDB di perangkat. */
-const CACHE_NAME = 'dawaam-pwa-shell-v2f-1';
+const CACHE_NAME = 'dawaam-pwa-shell-v2f-2';
 const FILES = ['./','./index.html','./manifest.json','./icon-192.jpg','./icon-512.jpg'];
 const INDEX_URL = new URL('./index.html',self.registration.scope).href;
 
