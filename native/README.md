@@ -15,3 +15,8 @@ Di aplikasi APK: buka menu Pengingat, isi jam, klik Simpan Pengingat, klik **Akt
 - Jam shalat diisi manual dan tidak menghitung waktu shalat berdasarkan lokasi.
 - Notifikasi tidak dijamin tepat menit di semua ponsel Android; versi uji menjadwalkan notifikasi inexact untuk menghindari meminta izin alarm presisi.
 - Backup JSON tidak terenkripsi. Simpan secara pribadi, jangan unggah ke repository publik.
+
+## Pengujian Tahap 3B (Tilawah)
+Versi diagnostik ini menggunakan package terpisah bernama **DAWAAM Tilawah Uji** agar tidak mengganti APK lama dengan tanda tangan debug yang berbeda. Atur Target Tilawah aktif dan frekuensi harian, klik Simpan Semua Target. Di Pengingat, aktifkan Tilawah dengan jam 5–10 menit dari sekarang dan klik Simpan Pengingat. Di panel Android klik Aktifkan Notifikasi, **4. Daftarkan Jadwal Ibadah**, lalu **Periksa Status Tilawah**. Pastikan Alarm Tilawah terdaftar >0 sebelum menutup aplikasi dengan tombol Home.
+
+Pengingat harian diterbitkan untuk 7 hari ke depan, mingguan/bulanan hingga 35 hari; aplikasi perlu dibuka lagi setidaknya setiap 7 hari untuk memperbarui pengingat harian. Jadwal tidak presisi hingga menit pada semua perangkat, khususnya saat mode hemat baterai. Ini masih APK uji, belum produksi.
