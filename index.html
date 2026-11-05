@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DAWAAM — Teman Istiqamah Setiap Hari</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="./icon-192.jpg">
+  <link rel="apple-touch-icon" href="./icon-192.jpg">
+  <meta name="theme-color" content="#181716">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    :root {
+      --black:#181716;--coal:#34302a;--gold:#b98932;--gold-soft:#e8d2a0;
+      --goldlight:#f9f3e8;--cream:#fbf9f5;--line:#e9e3d8;--muted:#77736d;
+    }
+    * {box-sizing:border-box}
+    body {margin:0;background:#efede8;color:var(--black);font-family:Arial,Helvetica,sans-serif;font-size:14px}
+    button,input,select {font:inherit}
+    .app {max-width:480px;margin:auto;background:var(--cream);min-height:100vh;padding:22px 20px 32px}
+    .brand {text-align:center;margin:4px 0 20px}
+    .brand img {display:block;width:154px;height:154px;object-fit:contain;margin:0 auto 2px;border-radius:12px}
+    .brand p {margin:0;color:#8c6a2c;text-transform:uppercase;font-size:11px;letter-spacing:1.35px}
+    .hero {background:linear-gradient(135deg,var(--black),var(--coal));color:#fff;border-radius:20px;padding:24px 21px;position:relative;overflow:hidden}
+    .hero:after {content:'✦';position:absolute;right:16px;top:12px;font-size:46px;color:var(--gold);opacity:.22;pointer-events:none}
+    .date {color:#e0c78d;font-size:13px}
+    .hero h1 {font-size:22px;margin:18px 0 10px}
+    .hero p {margin:0;line-height:1.65;color:#f4e6c8}
+    .quicknav {display:flex;gap:7px;margin-top:16px;overflow-x:auto;padding-bottom:2px}
+    .quicknav a {flex:1;white-space:nowrap;text-align:center;color:#7b5a1e;background:#fff;border:1px solid var(--line);padding:11px 7px;border-radius:12px;text-decoration:none;font-weight:bold;font-size:12px}
+    .card {background:#fff;border:1px solid var(--line);border-radius:17px;padding:19px 17px;margin-top:16px;box-shadow:0 2px 10px #30220b06}
+    .card h2 {font-size:17px;margin:0 0 12px}
+    .tag {display:inline-block;font-size:10px;color:#8d6726;background:#f9f0df;padding:5px 9px;border-radius:12px;margin-bottom:9px}
+    .muted {color:var(--muted);font-size:12px;line-height:1.55}
+    .kicker {font-size:12px;color:var(--muted);margin:0 0 5px}
+    .metric {font-weight:bold;margin:0 0 2px}
+    .progress {height:8px;background:#eee8dc;border-radius:20px;overflow:hidden;margin:10px 0 16px}
+    .progress:last-of-type {margin-bottom:10px}
+    .bar {height:100%;width:0;background:linear-gradient(90deg,#ad7a22,#dfba68);transition:width .2s}
+    .item {display:flex;justify-content:space-between;align-items:center;gap:9px;padding:13px 0;border-bottom:1px solid #f0ece5}
+    .item:last-child {border-bottom:0}
+    .item strong {font-size:14px}
+    .item .details {min-width:0;flex:1}
+    button {border:1px solid #e3d4b7;border-radius:10px;padding:10px 13px;background:#f5e9ce;color:#6d4b17;font-size:12px;font-weight:700;cursor:pointer;min-height:39px}
+    button.done {background:var(--black);border-color:var(--black);color:#e6c780}
+    button.primary {background:var(--black);border-color:var(--black);color:#f6e3b8}
+    button:disabled {opacity:.55;cursor:not-allowed}
+    button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible {outline:3px solid #cca455;outline-offset:2px}
+    .switch {display:flex;align-items:center;gap:10px;font-size:14px}
+    input[type=checkbox] {accent-color:var(--gold);width:18px;height:18px;flex-shrink:0}
+    .notice {background:var(--goldlight);border:1px solid #f0e2c8;border-radius:12px;padding:12px;color:#695633;font-size:12px;line-height:1.6;margin-top:12px}
+    .notice.error {color:#8e2727;background:#fcedeb;border-color:#f3d1cd}
+    .agenda {padding:13px 0;border-bottom:1px solid #f0ece5}
+    .agenda:last-child {border:0}
+    .agenda-title {display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .agenda-title strong {font-size:14px}
+    .mini-state {color:#6d4b17;background:var(--goldlight);border-radius:8px;padding:5px 8px;font-size:11px}
+    .record-control {display:flex;gap:8px;align-items:end;margin-top:11px}
+    .record-control label {flex:1;min-width:0;font-size:11px;color:#716a5b}
+    .record-control input {width:100%;border:1px solid #e5dbcc;border-radius:9px;padding:9px 10px;height:40px;margin-top:5px;background:white;color:var(--black)}
+    .record-control button {min-width:90px;height:40px}
+    .empty {color:#77736d;line-height:1.6;font-size:13px;padding:8px 0}
+    details.target {border:1px solid var(--line);border-radius:13px;margin:11px 0;background:#fff;overflow:hidden}
+    details.target summary {cursor:pointer;list-style:none;padding:14px 12px;display:flex;justify-content:space-between;align-items:center;font-weight:bold;gap:10px}
+    details.target summary::-webkit-details-marker {display:none}
+    details.target summary:after {content:'⌄';color:#8a6a32}
+    details.target[open] summary:after {content:'⌃'}
+    .target-body {padding:3px 12px 14px;border-top:1px solid var(--line)}
+    .field {display:block;font-size:12px;color:#686158;margin-top:13px}
+    .field input,.field select {display:block;width:100%;margin-top:6px;height:40px;padding:7px 10px;border-radius:10px;border:1px solid #e3dacb;background:white;color:var(--black)}
+    .two-col {display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .checkrow {margin-top:13px;display:flex;align-items:center;gap:8px;font-size:13px}
+    .goal-hint {font-size:11px;color:var(--muted);margin-top:8px}
+    .save-actions {margin-top:14px;display:flex;gap:9px;align-items:center}
+    .save-actions button {flex:1}
+    .history-day {border-bottom:1px solid #f0ece5;padding:12px 0}
+    .history-day:last-child {border:0}
+    .history-day-title {display:flex;justify-content:space-between;gap:9px;margin-bottom:6px}
+    .history-day-title strong {font-size:13px}
+    .history-day-title span {font-size:11px;color:#8a6a32}
+    .reminder-row {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #f0ece5}
+    .reminder-row:last-child {border-bottom:none}
+    .reminder-row label {display:flex;align-items:center;gap:8px;flex:1;min-width:0;font-size:13px}
+    .reminder-row input[type=time] {width:116px;height:40px;border:1px solid #e3dacb;border-radius:10px;padding:6px 8px;color:var(--black);background:white}
+    .reminder-list-item {display:flex;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid #f0ece5;padding:11px 0}
+    .reminder-list-item:last-child {border-bottom:0}
+    .reminder-list-item strong {font-size:13px}
+    .reminder-list-item .muted {margin-top:4px}
+    .reminder-clock {min-width:60px;text-align:center;font-weight:bold;color:#7d591d;background:#f9f0df;border-radius:10px;padding:8px 6px}
+    .reminder-now {border:1px solid #e4c788;border-radius:13px;padding:12px;margin:0 0 10px;background:#fff9eb}
+    .reminder-now strong {color:#7b5418;font-size:13px}
+    .reminder-now p {font-size:12px;color:#695633;line-height:1.55;margin:6px 0 0}
+    .backup-actions {display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+    .backup-actions button {flex:1;min-width:135px}
+    .backup-note {font-size:12px;line-height:1.65;color:#6d6457}
+    .backup-file {max-width:100%;width:100%;display:block;margin-top:7px;border:1px solid #e3dacb;border-radius:10px;padding:10px;background:#fff;color:var(--black)}
+    .footer {text-align:center;font-size:11px;color:#8b847a;margin:24px 0 0;line-height:1.6}
+    .footline {height:1px;background:linear-gradient(90deg,transparent,#c59c4c,transparent);margin:15px 0}
+    .pwa-status{display:flex;gap:9px;align-items:flex-start;color:#65563a;font-size:12px;line-height:1.5}
+    .pwa-dot{display:inline-block;background:#b98932;width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
+    .pwa-status.online .pwa-dot{background:#27835a}
+    .pwa-status.offline .pwa-dot{background:#ad7a22}
+    .pwa-install{margin:12px 0 0;width:100%}
+
+    [hidden] {display:none !important}
+    @media(max-width:370px) {.app{padding:16px 13px}.brand img{width:136px;height:136px}.two-col{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header class="brand">
+    <img src="data:image/webp;base64,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" alt="Logo resmi DAWAAM dengan huruf Dal hitam dan emas">
+    <p>Teman Istiqamah Setiap Hari</p>
+  </header>
+
+  <section class="hero" aria-label="Sambutan DAWAAM">
+    <div id="today" class="date"></div>
+    <h1>Assalamu'alaikum ✦</h1>
+    <p>Mulai dari yang mampu.<br>Jaga yang sudah tumbuh.</p>
+  </section>
+
+  <section class="card" aria-label="Status aplikasi offline">
+    <span class="tag">DAWAAM DI ANDROID</span>
+    <h2>Aplikasi Siap Dibawa</h2>
+    <div class="pwa-status" id="pwaConnection"><span class="pwa-dot"></span><span id="connectionText">Memeriksa koneksi...</span></div>
+    <div class="pwa-status" id="pwaOffline" style="margin-top:9px"><span class="pwa-dot"></span><span id="offlineText">Menyiapkan akses offline...</span></div>
+    <button type="button" class="primary pwa-install" id="installDawaam">Pasang DAWAAM di HP</button>
+    <p class="muted">Buka situs ini sekali dengan internet. Setelah status offline siap, kamu dapat mengakses catatan tanpa internet. Jika tombol instal tidak membuka dialog, gunakan menu Chrome ⋮ → Instal aplikasi atau Tambahkan ke layar utama.</p>
+  </section>
+
+  <nav class="quicknav" aria-label="Navigasi halaman">
+    <a href="#hari-ini">Hari Ini</a><a href="#atur-target">Atur Target</a><a href="#pengingat">Pengingat</a><a href="#riwayat">Riwayat</a>
+  </nav>
+
+  <section class="card" id="hari-ini">
+    <span class="tag">CATATAN HARIAN</span>
+    <h2>Perjalanan Hari Ini</h2>
+    <div class="kicker">Shalat fardhu</div>
+    <div class="metric" id="prayerSummary">Memuat...</div>
+    <div class="progress"><div class="bar" id="prayerBar"></div></div>
+    <div class="kicker">Target pribadi yang dijadwalkan hari ini</div>
+    <div class="metric" id="targetSummary">Memuat...</div>
+    <div class="progress"><div class="bar" id="targetBar"></div></div>
+    <div class="muted">Belum dicatat bukan berarti belum dilakukan. Ini alat bantu konsistensi, bukan ukuran ketakwaan.</div>
+  </section>
+
+  <section class="card">
+    <h2>Kondisi Muslimah</h2>
+    <label class="switch"><input type="checkbox" id="haid" disabled> Sedang haid / nifas (untuk hari ini)</label>
+    <div class="notice" id="conditionInfo">Memuat kondisi...</div>
+  </section>
+
+  <section class="card">
+    <div class="notice" id="storageStatus" role="status" aria-live="polite">Memeriksa penyimpanan browser...</div>
+  </section>
+
+  <section class="card">
+    <h2>Shalat Fardhu</h2>
+    <div id="prayers"></div>
+  </section>
+
+  <section class="card">
+    <h2>Agenda Pribadi Hari Ini</h2>
+    <p class="muted">Catat jumlah yang benar-benar dikerjakan. Target dapat disesuaikan kapan saja.</p>
+    <div id="agenda"></div>
+  </section>
+
+  <section class="card" id="atur-target">
+    <span class="tag">TARGET FLEKSIBEL</span>
+    <h2>Atur Target Pribadi</h2>
+    <p class="muted">Aktifkan hanya yang ingin dijadwalkan. Untuk sedekah, nominal merupakan komitmen pribadi, bukan kewajiban.</p>
+    <div id="targetEditor"></div>
+    <div class="save-actions"><button class="primary" id="saveTargets" disabled>Simpan Semua Target</button></div>
+    <div class="notice" id="targetStatus" role="status" aria-live="polite">Perubahan target belum disimpan.</div>
+  </section>
+
+  <section class="card" id="pengingat">
+    <span class="tag">PENGINGAT PRIBADI</span>
+    <h2>Pengingat Ibadah 🔔</h2>
+    <p class="muted">Tentukan jam sendiri sesuai kegiatan dan jadwal shalat di tempatmu. Semua pengingat awalnya nonaktif.</p>
+    <div class="notice">Pengingat ini hanya terlihat ketika halaman DAWAAM sedang terbuka. Ini <strong>bukan</strong> alarm atau notifikasi yang tetap berbunyi saat browser ditutup.</div>
+    <h3 style="font-size:14px;margin:19px 0 5px">Agenda Pengingat Hari Ini</h3>
+    <div id="reminderAlert" role="status" aria-live="polite"></div>
+    <div id="reminderList" aria-label="Pengingat hari ini"></div>
+    <details class="target" style="margin-top:16px">
+      <summary>Atur Jam Pengingat</summary>
+      <div class="target-body">
+        <p class="muted">Centang pengingat yang diinginkan, tentukan jam, lalu simpan. Pengingat target pribadi mengikuti jadwal target yang sudah kamu buat.</p>
+        <strong style="display:block;margin-top:13px">Shalat Fardhu</strong>
+        <div id="prayerReminderEditor"></div>
+        <strong style="display:block;margin-top:17px">Ibadah Pribadi</strong>
+        <div id="targetReminderEditor"></div>
+        <div class="save-actions"><button type="button" class="primary" id="saveReminders" disabled>Simpan Pengingat</button></div>
+        <div class="notice" id="reminderStatus" role="status" aria-live="polite">Belum ada pengaturan pengingat.</div>
+      </div>
+    </details>
+  </section>
+
+  <section class="card" id="riwayat">
+    <span class="tag">RIWAYAT LOKAL</span>
+    <h2>Riwayat 7 Hari</h2>
+    <p class="muted">Ringkasan dari browser ini. Hari tanpa catatan ditandai “Belum ada catatan”, bukan gagal.</p>
+    <div id="historyList">Memuat riwayat...</div>
+    <button id="refreshHistory" type="button">Perbarui Riwayat</button>
+  </section>
+
+
+  <section class="card" id="cadangan">
+    <span class="tag">KEAMANAN DATA PRIBADI</span>
+    <h2>Cadangkan & Pulihkan Catatan</h2>
+    <p class="backup-note">Catatan DAWAAM saat ini hanya tersimpan di browser ini. Buat file cadangan agar dapat dipulihkan saat berganti perangkat atau sebelum membersihkan data browser.</p>
+    <div class="backup-actions"><button type="button" class="primary" id="downloadBackup" disabled>↓ Buat File Cadangan</button></div>
+    <div class="notice"><strong>Jaga privasi.</strong> File cadangan berisi catatan ibadah dan dapat mencakup kondisi haid/nifas. File ini <strong>belum dienkripsi</strong>. Simpan secara pribadi dan jangan bagikan kepada orang lain.</div>
+    <details class="target" style="margin-top:15px">
+      <summary>Pulihkan dari File Cadangan</summary>
+      <div class="target-body">
+        <label class="field">Pilih file cadangan DAWAAM (.json)
+          <input type="file" class="backup-file" id="restoreFile" accept="application/json,.json">
+        </label>
+        <label class="field">Cara pemulihan
+          <select id="restoreMode">
+            <option value="skip">Gabungkan — jangan ubah catatan yang sudah ada</option>
+            <option value="overwrite">Gunakan isi cadangan jika datanya sama</option>
+          </select>
+        </label>
+        <p class="backup-note">Mode gabungkan melindungi catatan dan pengaturan yang sudah ada. Mode kedua dapat menggantikan catatan pada tanggal yang sama serta pengaturan target dan pengingat. Data dari tanggal lain tidak dihapus.</p>
+        <div class="backup-actions"><button type="button" id="restoreBackup" disabled>Pulihkan Catatan</button></div>
+      </div>
+    </details>
+    <div class="notice" id="backupStatus" role="status" aria-live="polite">Menyiapkan fitur cadangan...</div>
+  </section>
+
+  <section class="card">
+    <h2>Tentang Penyimpanan</h2>
+    <div class="notice">Versi PWA ini menyimpan catatan di browser pada perangkat yang digunakan. Setelah status <strong>Offline siap</strong> tampil dan situs sudah pernah dibuka, tampilan dapat dibuka tanpa internet. Cadangan pribadi diperlukan bila berganti alamat situs atau perangkat. Sinkronisasi Google Sheets dan notifikasi Android saat aplikasi ditutup belum tersedia.</div>
+  </section>
+
+  <footer class="footer">
+    <div class="footline"></div>
+    DAWAAM · Mulai dari yang mampu. Jaga yang sudah tumbuh.
+    <p>Tahap 2F · PWA offline, target, pengingat, dan cadangan lokal</p>
+  </footer>
+</main>
+<script>
+(function () {
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+  const prayers = ['Subuh','Dzuhur','Ashar','Maghrib','Isya'];
+  const names = {
+    tilawah:'Tilawah Al-Qur’an', dhuha:'Shalat Dhuha',
+    dzikir:'Dzikir', sedekah:'Sedekah'
+  };
+  const targetKeys = ['tilawah','dhuha','dzikir','sedekah'];
+  const weekdays = ['Ahad','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const reminderKeys = [...prayers.map(name => 'prayer:'+name), ...targetKeys.map(key => 'target:'+key)];
+  const reminderDefaults = Object.fromEntries(reminderKeys.map(key => [key,{enabled:false,time:''}]));
+  const defaults = {
+    tilawah:{enabled:true,goal:1,unit:'halaman',frequency:'daily',weekday:5,monthday:1},
+    dhuha:{enabled:false,goal:2,unit:'rakaat',frequency:'daily',weekday:5,monthday:1},
+    dzikir:{enabled:false,goal:33,unit:'kali',frequency:'daily',weekday:5,monthday:1},
+    sedekah:{enabled:false,goal:5000,unit:'rupiah',frequency:'weekly',weekday:5,monthday:1}
+  };
+  const now = new Date();
+  const dateKey = localDateKey(now);
+  const recordKey = 'day:' + dateKey;
+  let db = null;
+  let ready = false;
+  let daily = blankDay();
+  let targets = copy(defaults);
+  let reminders = copy(reminderDefaults);
+  let saveQueue = Promise.resolve();
+  let reminderSaveCount = 0;
+  let actionCounter = 0;
+
+  function copy(object) { return JSON.parse(JSON.stringify(object)); }
+  function localDateKey(date) {
+    return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
+  }
+  function dateFromKey(key) {
+    const [year, month, day] = key.split('-').map(Number);
+    return new Date(year,month-1,day,12);
+  }
+  function formatDate(key) {
+    return dateFromKey(key).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  }
+  function blankDay() {
+    return {prayers:{},tilawah:false,special:false,progress:{},plan:null,updatedAt:null};
+  }
+  function normalizeTarget(item, key) {
+    const fallback = defaults[key];
+    if (!item || typeof item !== 'object') return copy(fallback);
+    const unit = key === 'tilawah' && ['baris','halaman','juz'].includes(item.unit) ? item.unit : fallback.unit;
+    const freq = ['daily','weekly','monthly'].includes(item.frequency) ? item.frequency : fallback.frequency;
+    const number = Number(item.goal);
+    const validGoal = Number.isFinite(number) && number > 0 && number <= 1000000000;
+    return {
+      enabled:item.enabled === true,
+      goal:validGoal ? number : fallback.goal,
+      unit:unit,frequency:freq,
+      weekday:Number.isInteger(item.weekday) && item.weekday >= 0 && item.weekday <= 6 ? item.weekday : fallback.weekday,
+      monthday:Number.isInteger(item.monthday) && item.monthday >= 1 && item.monthday <= 28 ? item.monthday : fallback.monthday
+    };
+  }
+  function normalizeTargets(value) {
+    const result = {};
+    for (const key of targetKeys) result[key] = normalizeTarget(value && value[key],key);
+    return result;
+  }
+  function normalizeDay(raw, plan) {
+    const result = blankDay();
+    if (!raw || typeof raw !== 'object') {
+      result.plan = copy(plan);
+      return result;
+    }
+    for (const name of prayers) result.prayers[name] = raw.prayers && raw.prayers[name] === true;
+    result.special = raw.special === true;
+    result.tilawah = raw.tilawah === true;
+    if (raw.progress && typeof raw.progress === 'object') {
+      for (const key of targetKeys) {
+        const value = Number(raw.progress[key]);
+        if (Number.isFinite(value) && value >= 0) result.progress[key] = value;
+      }
+    } else if (raw.tilawah === true) {
+      // Migrasi: versi sebelumnya mencatat Tilawah sebagai selesai / belum.
+      // Konversi ke satu target bawaan (1 halaman), bukan menghapus catatan lama.
+      result.progress.tilawah = 1;
+    }
+    result.plan = raw.plan && typeof raw.plan === 'object' ? normalizeTargets(raw.plan) : copy(plan);
+    result.updatedAt = raw.updatedAt || null;
+    return result;
+  }
+  function normalizeReminders(raw) {
+    const out = copy(reminderDefaults);
+    for (const key of reminderKeys) {
+      const row = raw && typeof raw === 'object' ? raw[key] : null;
+      if (!row || typeof row !== 'object') continue;
+      out[key] = {
+        enabled: row.enabled === true,
+        time: typeof row.time === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(row.time) ? row.time : ''
+      };
+    }
+    return out;
+  }
+  function displayQuantity(number, unit) {
+    const value = Number(number) || 0;
+    if (unit === 'rupiah') return 'Rp' + new Intl.NumberFormat('id-ID',{maximumFractionDigits:0}).format(value);
+    return new Intl.NumberFormat('id-ID',{maximumFractionDigits:2}).format(value) + ' ' + unit;
+  }
+  function due(target, date, special, key) {
+    if (!target.enabled) return false;
+    if (special && key === 'dhuha') return false;
+    if (target.frequency === 'weekly' && date.getDay() !== target.weekday) return false;
+    if (target.frequency === 'monthly' && date.getDate() !== target.monthday) return false;
+    return true;
+  }
+  function percent(done, total) { return total ? Math.min(100,Math.round(done / total * 100)) : 0; }
+  function el(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+  }
+  function setNotice(message, isError) {
+    $('storageStatus').textContent = message;
+    $('storageStatus').classList.toggle('error',Boolean(isError));
+  }
+
+  function openDatabase() {
+    return new Promise((resolve,reject) => {
+      if (!('indexedDB' in window)) return reject(new Error('IndexedDB tidak tersedia'));
+      const req = indexedDB.open('dawaam-local', 2);
+      req.onupgradeneeded = () => {
+        const database = req.result;
+        if (!database.objectStoreNames.contains('days')) database.createObjectStore('days');
+        if (!database.objectStoreNames.contains('settings')) database.createObjectStore('settings');
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error || new Error('Tidak bisa membuka penyimpanan'));
+      req.onblocked = () => reject(new Error('Tutup tab DAWAAM lain, lalu refresh'));
+    });
+  }
+  function readKey(store,key) {
+    return new Promise((resolve,reject) => {
+      const tx = db.transaction(store,'readonly');
+      const req = tx.objectStore(store).get(key);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error || new Error('Tidak bisa membaca data'));
+    });
+  }
+  function writeSnapshot(daySnapshot, targetSnapshot, writeTargets) {
+    return new Promise((resolve,reject) => {
+      const stores = writeTargets ? ['days','settings'] : ['days'];
+      const tx = db.transaction(stores,'readwrite');
+      tx.objectStore('days').put(daySnapshot,recordKey);
+      if (writeTargets) tx.objectStore('settings').put(targetSnapshot,'user-targets-v1');
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error('Gagal menyimpan'));
+      tx.onabort = () => reject(tx.error || new Error('Penyimpanan dibatalkan'));
+    });
+  }
+  function writeReminders(snapshot) {
+    return new Promise((resolve,reject) => {
+      const tx = db.transaction('settings','readwrite');
+      tx.objectStore('settings').put(snapshot,'user-reminders-v1');
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error('Gagal menyimpan pengingat'));
+      tx.onabort = () => reject(tx.error || new Error('Penyimpanan pengingat dibatalkan'));
+    });
+  }
+  function queueSave(writeTargets) {
+    const token = ++actionCounter;
+    daily.updatedAt = new Date().toISOString();
+    const daySnapshot = copy(daily);
+    const targetSnapshot = copy(targets);
+    setNotice('Menyimpan catatan...');
+    saveQueue = saveQueue.catch(() => {}).then(() => writeSnapshot(daySnapshot,targetSnapshot,writeTargets));
+    saveQueue.then(() => {
+      if (token === actionCounter) setNotice('✓ Catatan ' + dateKey + ' tersimpan di browser ini.');
+    }).catch(error => {
+      ready = false;
+      render();
+      setNotice('Penyimpanan gagal. Catatan baru belum aman; jangan tutup halaman.',true);
+      console.error(error);
+    });
+  }
+  function act(action,writeTargets) {
+    if (!ready) return;
+    if (localDateKey(new Date()) !== dateKey) {
+      setNotice('Hari sudah berganti. Refresh DAWAAM sebelum mencatat ibadah hari ini.',true);
+      return;
+    }
+    action();
+    render();
+    queueSave(Boolean(writeTargets));
+  }
+
+  function renderPrayerList() {
+    const container = $('prayers');
+    container.replaceChildren();
+    for (const name of prayers) {
+      const row = el('div','item');
+      row.appendChild(el('strong','details',name));
+      const button = el('button',daily.prayers[name] && !daily.special ? 'done' : '',
+        daily.special ? 'Tidak berlaku' : daily.prayers[name] ? '✓ Tercatat' : 'Catat');
+      button.type = 'button';
+      button.disabled = daily.special || !ready;
+      button.addEventListener('click',() => act(() => { daily.prayers[name] = !daily.prayers[name]; }));
+      row.appendChild(button);
+      container.appendChild(row);
+    }
+  }
+  function renderTodayAgenda() {
+    const container = $('agenda');
+    container.replaceChildren();
+    const dueKeys = targetKeys.filter(key => due(targets[key],now,daily.special,key));
+    if (!dueKeys.length) {
+      container.appendChild(el('div','empty','Tidak ada target pribadi yang dijadwalkan hari ini. Kamu dapat mengaktifkannya di Atur Target.'));
+      return;
+    }
+    for (const key of dueKeys) {
+      const item = targets[key];
+      const value = Number(daily.progress[key]) || 0;
+      const block = el('div','agenda');
+      const heading = el('div','agenda-title');
+      heading.appendChild(el('strong','',names[key]));
+      heading.appendChild(el('span','mini-state',value >= item.goal ? '✓ Target tercatat' : 'Berjalan'));
+      block.appendChild(heading);
+      block.appendChild(el('div','muted','Tercatat: ' + displayQuantity(value,item.unit) + ' / Target: ' + displayQuantity(item.goal,item.unit)));
+      const bar = el('div','progress');
+      const fill = el('div','bar');
+      fill.style.width = percent(value,item.goal) + '%';
+      bar.appendChild(fill);
+      block.appendChild(bar);
+      const control = el('div','record-control');
+      const label = el('label','', 'Jumlah yang telah dikerjakan hari ini');
+      const input = el('input');
+      input.type = 'number';
+      input.min = '0';
+      input.max = '1000000000';
+      input.step = (key === 'tilawah' && item.unit === 'juz') ? '0.1' : '1';
+      input.value = String(value);
+      input.setAttribute('aria-label','Jumlah tercatat untuk ' + names[key]);
+      label.appendChild(input);
+      const saveButton = el('button','', 'Simpan');
+      saveButton.type = 'button';
+      saveButton.disabled = !ready;
+      saveButton.addEventListener('click',() => {
+        const inputNumber = Number(input.value);
+        const decimalAllowed = key === 'tilawah' && item.unit === 'juz';
+        if (!input.value.trim() || !Number.isFinite(inputNumber) || inputNumber < 0 || inputNumber > 1000000000 || (!decimalAllowed && !Number.isInteger(inputNumber))) {
+          alert('Masukkan jumlah yang valid (nol atau lebih).');
+          input.focus();
+          return;
+        }
+        act(() => { daily.progress[key] = inputNumber; daily.tilawah = daily.progress.tilawah >= (targets.tilawah.goal || 1); });
+      });
+      control.append(label,saveButton);
+      block.appendChild(control);
+      container.appendChild(block);
+    }
+  }
+  function renderSummary() {
+    const prayerDone = prayers.filter(name => daily.prayers[name] === true).length;
+    $('prayerSummary').textContent = daily.special ? 'Tidak berlaku selama haid / nifas' : prayerDone + ' dari 5 tercatat';
+    $('prayerBar').style.width = daily.special ? '0%' : percent(prayerDone,5) + '%';
+    const currentKeys = targetKeys.filter(key => due(targets[key],now,daily.special,key));
+    const targetDone = currentKeys.filter(key => (Number(daily.progress[key]) || 0) >= targets[key].goal).length;
+    $('targetSummary').textContent = currentKeys.length ? targetDone + ' dari ' + currentKeys.length + ' target tercatat' : 'Belum ada target terjadwal';
+    $('targetBar').style.width = percent(targetDone,currentKeys.length) + '%';
+    $('haid').checked = daily.special;
+    $('haid').disabled = !ready;
+    $('conditionInfo').textContent = daily.special
+      ? 'Pada hari ini, shalat fardhu dan Dhuha tidak ditargetkan. Catatan sebelumnya tetap disimpan, tetapi tidak dihitung. Dzikir dan sedekah tetap bisa dicatat.'
+      : 'Agenda shalat ditampilkan seperti biasa.';
+  }
+  function render() {
+    renderSummary();
+    renderPrayerList();
+    renderTodayAgenda();
+    renderReminderAgenda();
+  }
+
+  function reminderTitle(key) {
+    return key.startsWith('prayer:') ? 'Shalat '+key.slice(7) : names[key.slice(7)];
+  }
+  function isReminderApplicable(key) {
+    if (key.startsWith('prayer:')) return !daily.special;
+    const targetKey = key.slice(7);
+    return due(targets[targetKey],new Date(),daily.special,targetKey);
+  }
+  function isReminderRecorded(key) {
+    if (key.startsWith('prayer:')) return daily.prayers[key.slice(7)] === true;
+    const targetKey = key.slice(7);
+    return (Number(daily.progress[targetKey]) || 0) >= targets[targetKey].goal;
+  }
+  function reminderItemsToday() {
+    return reminderKeys.filter(key =>
+      reminders[key].enabled && reminders[key].time && isReminderApplicable(key)
+    ).map(key => ({key,time:reminders[key].time})).sort((a,b) =>
+      a.time.localeCompare(b.time) || a.key.localeCompare(b.key)
+    );
+  }
+  function renderReminderAgenda() {
+    const list = $('reminderList');
+    const alertBox = $('reminderAlert');
+    if (!list || !alertBox) return;
+    list.replaceChildren();
+    alertBox.replaceChildren();
+    if (!ready) {
+      list.appendChild(el('div','empty','Memuat pengingat...'));
+      return;
+    }
+    if (localDateKey(new Date()) !== dateKey) {
+      list.appendChild(el('div','notice error','Hari sudah berganti. Refresh halaman agar agenda diperbarui.'));
+      return;
+    }
+    const items = reminderItemsToday();
+    if (!items.length) {
+      list.appendChild(el('div','empty','Belum ada pengingat aktif untuk hari ini. Buka Atur Jam Pengingat untuk menambahkannya.'));
+      return;
+    }
+    const current = new Date();
+    const hhmm = String(current.getHours()).padStart(2,'0')+':'+String(current.getMinutes()).padStart(2,'0');
+    const arrived = items.filter(item => item.time <= hhmm && !isReminderRecorded(item.key));
+    if (arrived.length) {
+      const note = el('div','reminder-now');
+      note.appendChild(el('strong','', '🔔 Ada '+arrived.length+' pengingat yang sudah tiba'));
+      note.appendChild(el('p','',arrived.map(item => reminderTitle(item.key)).join(', ')+'. Jika sudah dilaksanakan, catat pada agenda harian.'));
+      alertBox.appendChild(note);
+    }
+    for (const item of items) {
+      const row = el('div','reminder-list-item');
+      const info = el('div','');
+      info.appendChild(el('strong','',reminderTitle(item.key)));
+      const status = isReminderRecorded(item.key) ? '✓ Sudah tercatat' : item.time <= hhmm ? 'Jam pengingat sudah tiba' : 'Belum waktunya';
+      info.appendChild(el('div','muted',status));
+      row.appendChild(info);
+      row.appendChild(el('div','reminder-clock',item.time));
+      list.appendChild(row);
+    }
+  }
+  function makeReminderEditor() {
+    const prayerContainer = $('prayerReminderEditor');
+    const targetContainer = $('targetReminderEditor');
+    prayerContainer.replaceChildren();
+    targetContainer.replaceChildren();
+    for (const key of reminderKeys) {
+      const row = el('div','reminder-row');
+      const label = el('label');
+      const check = el('input');
+      check.type = 'checkbox';
+      check.id = 'reminder-enabled-'+key.replace(':','-');
+      label.appendChild(check);
+      label.appendChild(document.createTextNode(reminderTitle(key)));
+      row.appendChild(label);
+      const time = el('input');
+      time.type = 'time';
+      time.id = 'reminder-time-'+key.replace(':','-');
+      time.setAttribute('aria-label','Jam pengingat '+reminderTitle(key));
+      row.appendChild(time);
+      (key.startsWith('prayer:') ? prayerContainer : targetContainer).appendChild(row);
+    }
+    fillReminderEditor();
+  }
+  function fillReminderEditor() {
+    for (const key of reminderKeys) {
+      const id = key.replace(':','-');
+      $('reminder-enabled-'+id).checked = reminders[key].enabled;
+      $('reminder-time-'+id).value = reminders[key].time;
+    }
+  }
+  function readReminderEditor() {
+    const next = {};
+    for (const key of reminderKeys) {
+      const id = key.replace(':','-');
+      const enabled = $('reminder-enabled-'+id).checked;
+      const time = $('reminder-time-'+id).value;
+      if (enabled && !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
+        throw new Error('Pilih jam pengingat untuk '+reminderTitle(key)+'.');
+      }
+      next[key] = {enabled,time: /^([01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : ''};
+    }
+    return next;
+  }
+  async function saveReminderSettings() {
+    if (!ready) return;
+    let next;
+    try { next = readReminderEditor(); }
+    catch(error) {
+      $('reminderStatus').textContent = error.message;
+      $('reminderStatus').classList.add('error');
+      return;
+    }
+    $('saveReminders').disabled = true;
+    $('reminderStatus').classList.remove('error');
+    $('reminderStatus').textContent = 'Menyimpan pengingat...';
+    const seq = ++reminderSaveCount;
+    const snapshot = copy(next);
+    saveQueue = saveQueue.catch(() => {}).then(() => writeReminders(snapshot));
+    try {
+      await saveQueue;
+      reminders = snapshot;
+      renderReminderAgenda();
+      if (seq === reminderSaveCount) $('reminderStatus').textContent = '✓ Pengingat tersimpan di browser ini.';
+    } catch(error) {
+      $('reminderStatus').textContent = 'Gagal menyimpan pengingat. Coba lagi.';
+      $('reminderStatus').classList.add('error');
+      backupNotice('Fitur cadangan membutuhkan penyimpanan browser yang aktif.', true);
+      console.error(error);
+    } finally {
+      $('saveReminders').disabled = false;
+    }
+  }
+
+  function makeField(labelText,id,type,options) {
+    const label = el('label','field',labelText);
+    const input = el(type === 'select' ? 'select' : 'input');
+    input.id = id;
+    if (type !== 'select') input.type = type;
+    if (options) for (const [value,text] of options) {
+      const option = el('option','',text);
+      option.value = String(value);
+      input.appendChild(option);
+    }
+    label.appendChild(input);
+    return label;
+  }
+  function makeEditor() {
+    const container = $('targetEditor');
+    container.replaceChildren();
+    for (const key of targetKeys) {
+      const detail = el('details','target');
+      const summary = el('summary','',names[key]);
+      detail.appendChild(summary);
+      const body = el('div','target-body');
+      const check = el('label','checkrow','');
+      const enabled = el('input');
+      enabled.type = 'checkbox';
+      enabled.id = key + '-enabled';
+      check.append(enabled,document.createTextNode(' Aktifkan target ini'));
+      body.appendChild(check);
+      const pair = el('div','two-col');
+      pair.appendChild(makeField(key === 'sedekah' ? 'Nominal target (Rp)' : 'Jumlah target',key+'-goal','number'));
+      if (key === 'tilawah') pair.appendChild(makeField('Satuan',key+'-unit','select',[['baris','Baris'],['halaman','Halaman'],['juz','Juz']]));
+      else pair.appendChild(el('div','muted',key === 'dhuha' ? 'Jumlah rakaat: bilangan genap, 2–12' : key === 'dzikir' ? 'Satuan: kali' : 'Jumlah dalam Rupiah'));
+      body.appendChild(pair);
+      body.appendChild(makeField('Jadwal',key+'-frequency','select',[
+        ['daily','Setiap hari'],['weekly','Setiap pekan'],['monthly','Setiap bulan']
+      ]));
+      const weekly = makeField('Hari dalam pekan',key+'-weekday','select',weekdays.map((d,i) => [i,d]));
+      weekly.id = key + '-weekly-field';
+      body.appendChild(weekly);
+      const monthly = makeField('Tanggal setiap bulan (1–28)',key+'-monthday','number');
+      monthly.id = key + '-monthly-field';
+      body.appendChild(monthly);
+      body.appendChild(el('div','goal-hint',key === 'sedekah' ? 'Hanya dicatat jika kamu memilihnya. Tidak ada penagihan.' : 'Hari tanpa jadwal tidak masuk perhitungan target.'));
+      detail.appendChild(body);
+      container.appendChild(detail);
+      $(key+'-frequency').addEventListener('change',() => updateScheduleVisibility(key));
+      if (key === 'tilawah') $(key+'-unit').addEventListener('change',() => setInputSteps(key));
+    }
+    fillEditor();
+  }
+  function updateScheduleVisibility(key) {
+    const frequency = $(key+'-frequency').value;
+    $(key+'-weekly-field').hidden = frequency !== 'weekly';
+    $(key+'-monthly-field').hidden = frequency !== 'monthly';
+  }
+  function setInputSteps(key) {
+    if (key !== 'tilawah') return;
+    const input = $(key+'-goal');
+    input.step = $(key+'-unit').value === 'juz' ? '0.1' : '1';
+  }
+  function fillEditor() {
+    for (const key of targetKeys) {
+      const setting = targets[key];
+      $(key+'-enabled').checked = setting.enabled;
+      $(key+'-goal').value = String(setting.goal);
+      $(key+'-goal').min = key === 'dhuha' ? '2' : '0.1';
+      $(key+'-goal').max = key === 'dhuha' ? '12' : '1000000000';
+      $(key+'-goal').step = '1';
+      if (key === 'tilawah') $(key+'-unit').value = setting.unit;
+      $(key+'-frequency').value = setting.frequency;
+      $(key+'-weekday').value = String(setting.weekday);
+      $(key+'-monthday').value = String(setting.monthday);
+      $(key+'-monthday').min = '1';
+      $(key+'-monthday').max = '28';
+      setInputSteps(key);
+      updateScheduleVisibility(key);
+    }
+  }
+  function readTargetsFromEditor() {
+    const next = {};
+    for (const key of targetKeys) {
+      const goalString = $(key+'-goal').value.trim();
+      const goal = Number(goalString);
+      const unit = key === 'tilawah' ? $(key+'-unit').value : defaults[key].unit;
+      const decimalAllowed = key === 'tilawah' && unit === 'juz';
+      if (!goalString || !Number.isFinite(goal) || goal <= 0 || goal > 1000000000 || (!decimalAllowed && !Number.isInteger(goal)))
+        throw new Error('Periksa jumlah target: ' + names[key]);
+      if (key === 'dhuha' && (goal < 2 || goal > 12 || goal % 2 !== 0))
+        throw new Error('Target Dhuha harus 2, 4, 6, 8, 10, atau 12 rakaat.');
+      const weekday = Number($(key+'-weekday').value);
+      const monthday = Number($(key+'-monthday').value);
+      if (!Number.isInteger(weekday) || weekday < 0 || weekday > 6 || !Number.isInteger(monthday) || monthday < 1 || monthday > 28)
+        throw new Error('Periksa jadwal: ' + names[key]);
+      next[key] = {
+        enabled:$(key+'-enabled').checked,
+        goal,unit,frequency:$(key+'-frequency').value,
+        weekday,monthday
+      };
+    }
+    return next;
+  }
+  function saveTargets() {
+    if (!ready) return;
+    let changed;
+    try { changed = readTargetsFromEditor(); }
+    catch (error) { $('targetStatus').textContent = error.message; $('targetStatus').classList.add('error'); return; }
+    act(() => {
+      targets = changed;
+      daily.plan = copy(changed);
+    },true);
+    $('targetStatus').textContent = '✓ Target disimpan di browser ini. Riwayat hari sebelumnya tetap ada.';
+    $('targetStatus').classList.remove('error');
+    // Jika ini mengubah target yang sedang tercatat, jumlah sebelumnya tidak dihapus.
+    refreshHistory();
+  }
+
+  function renderHistoryDay(key,record) {
+    const wrapper = el('div','history-day');
+    const header = el('div','history-day-title');
+    header.appendChild(el('strong','',formatDate(key)));
+    header.appendChild(el('span','',record ? 'Ada catatan' : 'Belum ada catatan'));
+    wrapper.appendChild(header);
+    if (!record) {
+      wrapper.appendChild(el('div','muted','Belum ada catatan.'));
+      return wrapper;
+    }
+    const saved = normalizeDay(record,targets);
+    const prayDone = prayers.filter(name => saved.prayers[name]).length;
+    wrapper.appendChild(el('div','muted',saved.special ? 'Shalat: tidak berlaku (haid/nifas)' : 'Shalat: ' + prayDone + '/5 tercatat'));
+    const date = dateFromKey(key);
+    const plan = saved.plan;
+    const active = targetKeys.filter(k => due(plan[k],date,saved.special,k));
+    const achieved = active.filter(k => (saved.progress[k] || 0) >= plan[k].goal).length;
+    wrapper.appendChild(el('div','muted','Target pribadi: ' + (active.length ? achieved + '/' + active.length + ' tercatat' : 'tidak ada jadwal')));
+    return wrapper;
+  }
+  async function refreshHistory() {
+    if (!db) return;
+    const container = $('historyList');
+    container.replaceChildren(el('div','muted','Memuat riwayat...'));
+    try {
+      // Menunggu semua penyimpanan agar riwayat tidak membaca versi lama.
+      await saveQueue.catch(() => {});
+      const dates = [];
+      for (let i=0; i<7; i++) {
+        const date = new Date(now.getFullYear(),now.getMonth(),now.getDate()-i,12);
+        dates.push(localDateKey(date));
+      }
+      const records = await Promise.all(dates.map(key => readKey('days','day:'+key)));
+      container.replaceChildren();
+      dates.forEach((key,index) => container.appendChild(renderHistoryDay(key,records[index])));
+    } catch (error) {
+      container.replaceChildren(el('div','notice error','Riwayat tidak bisa dibaca. Coba refresh halaman.'));
+      console.error(error);
+    }
+  }
+
+
+
+  // Tahap 2E: cadangan pribadi (JSON) dan pemulihan lokal tanpa jaringan/server.
+  function backupNotice(message, error) {
+    const node = $('backupStatus');
+    node.textContent = message;
+    node.classList.toggle('error', Boolean(error));
+  }
+
+  function readAllRecords(storeName) {
+    return new Promise((resolve, reject) => {
+      const rows = [];
+      const tx = db.transaction(storeName, 'readonly');
+      const req = tx.objectStore(storeName).openCursor();
+      req.onsuccess = () => {
+        const cursor = req.result;
+        if (cursor) {
+          rows.push([cursor.key, cursor.value]);
+          cursor.continue();
+        }
+      };
+      tx.oncomplete = () => resolve(rows);
+      tx.onerror = () => reject(tx.error || new Error('Gagal membaca data untuk cadangan.'));
+      tx.onabort = () => reject(tx.error || new Error('Pembacaan cadangan dibatalkan.'));
+    });
+  }
+
+  async function downloadBackup() {
+    if (!ready || !db) return;
+    $('downloadBackup').disabled = true;
+    backupNotice('Membaca catatan dan menyiapkan file cadangan...');
+    try {
+      await saveQueue;
+      const [days, allSettings] = await Promise.all([
+        readAllRecords('days'), readAllRecords('settings')
+      ]);
+      const supportedSettings = ['user-targets-v1', 'user-reminders-v1'];
+      const settings = allSettings.filter(row => supportedSettings.includes(row[0]));
+      const payload = {
+        app:'DAWAAM', format:'local-backup', version:1,
+        exportedAt:new Date().toISOString(), days, settings
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = 'DAWAAM-Cadangan-' + localDateKey(new Date()) + '.json';
+      anchor.target = '_self';
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      backupNotice('✓ File cadangan sudah disiapkan. Periksa unduhan browser dan simpan file secara pribadi.');
+    } catch (error) {
+      backupNotice('Gagal membuat cadangan: ' + (error.message || 'kesalahan browser'), true);
+      console.error(error);
+    } finally {
+      $('downloadBackup').disabled = false;
+    }
+  }
+
+  function validateBackup(payload) {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload) ||
+        payload.app !== 'DAWAAM' || payload.format !== 'local-backup' || payload.version !== 1 ||
+        !Array.isArray(payload.days) || !Array.isArray(payload.settings)) {
+      throw new Error('File bukan cadangan DAWAAM versi yang didukung.');
+    }
+    if (payload.days.length > 10000 || payload.settings.length > 2) {
+      throw new Error('Isi cadangan terlalu besar atau tidak sesuai.');
+    }
+    const days = [], settings = [], seenDays = new Set(), seenSettings = new Set();
+    for (const entry of payload.settings) {
+      if (!Array.isArray(entry) || entry.length !== 2) throw new Error('Format pengaturan dalam cadangan tidak sesuai.');
+      const [key, value] = entry;
+      if (!['user-targets-v1','user-reminders-v1'].includes(key) || seenSettings.has(key) ||
+          !value || typeof value !== 'object' || Array.isArray(value)) {
+        throw new Error('Ada pengaturan yang tidak sesuai pada cadangan.');
+      }
+      seenSettings.add(key);
+      settings.push([key, key === 'user-targets-v1' ? normalizeTargets(value) : normalizeReminders(value)]);
+    }
+    const importedTargets = settings.find(row => row[0] === 'user-targets-v1');
+    const fallbackPlan = importedTargets ? importedTargets[1] : targets;
+    for (const entry of payload.days) {
+      if (!Array.isArray(entry) || entry.length !== 2) throw new Error('Format catatan harian tidak sesuai.');
+      const [key, value] = entry;
+      if (typeof key !== 'string' || !/^day:\d{4}-\d{2}-\d{2}$/.test(key) || seenDays.has(key) ||
+          !value || typeof value !== 'object' || Array.isArray(value)) {
+        throw new Error('Ada tanggal atau catatan harian tidak valid dalam cadangan.');
+      }
+      const rawDate = key.slice(4);
+      const [y,m,d] = rawDate.split('-').map(Number);
+      const date = new Date(y,m-1,d,12);
+      if (y < 2000 || y > 2100 || localDateKey(date) !== rawDate) {
+        throw new Error('Ada tanggal yang tidak valid dalam cadangan.');
+      }
+      if (value.progress && (typeof value.progress !== 'object' || Array.isArray(value.progress) ||
+          Object.values(value.progress).some(n => !Number.isFinite(Number(n)) || Number(n) < 0 || Number(n) > 1000000000))) {
+        throw new Error('Ada nilai pencatatan yang tidak sesuai dalam cadangan.');
+      }
+      seenDays.add(key);
+      const normalized = normalizeDay(value, fallbackPlan);
+      normalized.updatedAt = typeof value.updatedAt === 'string' ? value.updatedAt.slice(0, 40) : null;
+      days.push([key, normalized]);
+    }
+    return {days, settings};
+  }
+
+  function applyBackup(days, settings, mode) {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(['days','settings'], 'readwrite');
+      let added = 0, skipped = 0;
+      const writeRow = (store, key, value) => {
+        if (mode === 'overwrite') {
+          tx.objectStore(store).put(value, key);
+          added++;
+        } else {
+          const request = tx.objectStore(store).get(key);
+          request.onsuccess = () => {
+            if (request.result === undefined) {
+              tx.objectStore(store).put(value, key);
+              added++;
+            } else skipped++;
+          };
+        }
+      };
+      for (const [key, value] of days) writeRow('days', key, value);
+      for (const [key, value] of settings) writeRow('settings', key, value);
+      tx.oncomplete = () => resolve({added, skipped});
+      tx.onerror = () => reject(tx.error || new Error('Gagal memulihkan data.'));
+      tx.onabort = () => reject(tx.error || new Error('Pemulihan dibatalkan.'));
+    });
+  }
+
+  async function restoreBackup() {
+    if (!ready || !db) return;
+    const file = $('restoreFile').files[0];
+    if (!file) return backupNotice('Pilih file cadangan DAWAAM terlebih dahulu.', true);
+    if (file.size > 10 * 1024 * 1024) return backupNotice('File terlalu besar (maksimal 10 MB).', true);
+    let parsed;
+    try {
+      parsed = validateBackup(JSON.parse(await file.text()));
+    } catch (error) {
+      return backupNotice('File tidak dapat digunakan: ' + (error.message || 'format rusak'), true);
+    }
+    const mode = $('restoreMode').value;
+    if (!['skip','overwrite'].includes(mode)) return;
+    if (parsed.days.length === 0 && parsed.settings.length === 0) {
+      return backupNotice('Cadangan tidak berisi catatan atau pengaturan.', true);
+    }
+    const question = mode === 'overwrite'
+      ? 'Pulihkan cadangan dan TIMPA catatan tanggal yang sama serta pengaturan target/pengingat saat ini? Catatan tanggal lain tidak dihapus.'
+      : 'Gabungkan cadangan? Catatan dan pengaturan yang sudah ada akan dipertahankan.';
+    if (!window.confirm(question)) return;
+    $('restoreBackup').disabled = true;
+    $('downloadBackup').disabled = true;
+    backupNotice('Memulihkan cadangan... Jangan tutup halaman.');
+    try {
+      await saveQueue;
+      ready = false;
+      render();
+      const outcome = await applyBackup(parsed.days, parsed.settings, mode);
+      backupNotice('✓ Pemulihan selesai: ' + outcome.added + ' data dimasukkan, ' + outcome.skipped + ' data tetap dipertahankan.');
+      window.alert('Pemulihan berhasil. DAWAAM akan memuat ulang untuk menampilkan catatan.');
+      window.location.reload();
+    } catch (error) {
+      backupNotice('Pemulihan gagal. Tidak ada perubahan sebagian yang disimpan. ' + (error.message || ''), true);
+      console.error(error);
+    } finally {
+      ready = true;
+      render();
+      $('restoreBackup').disabled = false;
+      $('downloadBackup').disabled = false;
+    }
+  }
+
+  $('today').textContent = formatDate(dateKey);
+  $('haid').addEventListener('change',() => act(() => { daily.special = $('haid').checked; }));
+  $('saveTargets').addEventListener('click',saveTargets);
+  $('refreshHistory').addEventListener('click',refreshHistory);
+  $('saveReminders').addEventListener('click',saveReminderSettings);
+  $('downloadBackup').addEventListener('click', downloadBackup);
+  $('restoreBackup').addEventListener('click', restoreBackup);
+  $('restoreFile').addEventListener('change', () => {
+    const file = $('restoreFile').files[0];
+    backupNotice(file ? 'File ' + file.name + ' dipilih. Tentukan cara pemulihan, lalu klik Pulihkan Catatan.' : 'Pilih file cadangan untuk dipulihkan.');
+  });
+  async function init() {
+    render();
+    makeEditor();
+    makeReminderEditor();
+    try {
+      db = await openDatabase();
+      const [savedTargets,savedDay,savedReminders] = await Promise.all([
+        readKey('settings','user-targets-v1'),
+        readKey('days',recordKey),
+        readKey('settings','user-reminders-v1')
+      ]);
+      targets = normalizeTargets(savedTargets);
+      daily = normalizeDay(savedDay,targets);
+      reminders = normalizeReminders(savedReminders);
+      ready = true;
+      $('saveTargets').disabled = false;
+      $('saveReminders').disabled = false;
+      $('downloadBackup').disabled = false;
+      $('restoreBackup').disabled = false;
+      backupNotice('Siap. Buat cadangan pertama untuk melindungi data ibadahmu.');
+      fillEditor();
+      fillReminderEditor();
+      render();
+      setNotice('✓ Penyimpanan browser aktif. Catatan ' + dateKey + ' siap digunakan.');
+      $('targetStatus').textContent = 'Target bisa diubah dan disimpan tanpa menghapus riwayat.';
+      $('reminderStatus').textContent = 'Pengingat dapat diaktifkan dan disimpan tanpa mengubah catatan ibadah.';
+      await refreshHistory();
+      // Status pengingat diperbarui selama halaman terbuka saja.
+      setInterval(renderReminderAgenda,15000);
+    } catch (error) {
+      setNotice('Penyimpanan tidak tersedia. Buka melalui Chrome biasa, izinkan data situs, lalu refresh.',true);
+      $('targetStatus').textContent = 'Fitur simpan belum aktif karena database browser tidak tersedia.';
+      $('targetStatus').classList.add('error');
+      $('reminderStatus').textContent = 'Pengingat tidak tersedia karena penyimpanan browser gagal.';
+      $('reminderStatus').classList.add('error');
+      console.error(error);
+    }
+  }
+  init();
+})();
+</script>
+<script>
+(function () {
+  'use strict';
+  const connection = document.getElementById('pwaConnection');
+  const connectionText = document.getElementById('connectionText');
+  const offline = document.getElementById('pwaOffline');
+  const offlineText = document.getElementById('offlineText');
+  const installBtn = document.getElementById('installDawaam');
+  let installPrompt = null;
+
+  function updateConnection() {
+    const isOnline = navigator.onLine;
+    connection.className = 'pwa-status ' + (isOnline ? 'online' : 'offline');
+    connectionText.textContent = isOnline
+      ? 'Perangkat sedang online.'
+      : 'Perangkat sedang offline. Catatan lokal tetap bisa digunakan.';
+  }
+  updateConnection();
+  window.addEventListener('online',updateConnection);
+  window.addEventListener('offline',updateConnection);
+
+  window.addEventListener('beforeinstallprompt',event => {
+    event.preventDefault();
+    installPrompt = event;
+  });
+  window.addEventListener('appinstalled',() => {
+    installPrompt = null;
+    installBtn.textContent = 'DAWAAM sudah terpasang ✓';
+    installBtn.disabled = true;
+  });
+  installBtn.addEventListener('click',async() => {
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      window.alert('DAWAAM sudah terbuka sebagai aplikasi di perangkat ini.');
+      return;
+    }
+    if (!installPrompt) {
+      window.alert('Di Chrome Android, buka menu ⋮, lalu pilih "Instal aplikasi" atau "Tambahkan ke layar utama". Pastikan DAWAAM sudah dibuka melalui HTTPS.');
+      return;
+    }
+    const prompt = installPrompt;
+    installPrompt = null;
+    try {
+      await prompt.prompt();
+      await prompt.userChoice;
+    } catch (error) {
+      console.error('Dialog instalasi tidak tersedia:',error);
+    }
+  });
+
+  if ('serviceWorker' in navigator && location.protocol === 'https:' ||
+      'serviceWorker' in navigator && location.hostname === 'localhost') {
+    navigator.serviceWorker.addEventListener('controllerchange',() => {
+      offline.className='pwa-status online';
+      offlineText.textContent='✓ Offline siap. DAWAAM dapat dibuka kembali tanpa internet.';
+    });
+    navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(async registration => {
+      await navigator.serviceWorker.ready;
+      if (navigator.serviceWorker.controller) {
+        offline.className='pwa-status online';
+        offlineText.textContent='✓ Offline siap. DAWAAM dapat dibuka kembali tanpa internet.';
+      } else {
+        offlineText.textContent='Menyelesaikan pemasangan offline. Coba refresh satu kali.';
+      }
+    }).catch(error => {
+      offline.className='pwa-status offline';
+      offlineText.textContent='Mode offline belum aktif. Periksa koneksi dan refresh halaman.';
+      console.error('Service worker DAWAAM:',error);
+    });
+  } else {
+    offline.className='pwa-status offline';
+    offlineText.textContent='Mode offline memerlukan alamat HTTPS.';
+  }
+})();
+</script>
+</body>
+</html>
