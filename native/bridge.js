@@ -5,6 +5,8 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
   const baseId = 4100;
   const testId = 4999;
+  const immediateId = 4998;
+  const channelId = 'dawaam_notifikasi_2026_v1';
   const prayerNames = ['Subuh','Dzuhur','Ashar','Maghrib','Isya'];
   const targetNames = { tilawah: 'Tilawah Al-Qur’an', dhuha: 'Shalat Dhuha', dzikir: 'Dzikir', sedekah: 'Sedekah' };
   const keys = [...prayerNames.map(name => 'prayer:' + name), ...Object.keys(targetNames).map(name => 'target:' + name)];
@@ -16,6 +18,19 @@ if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
     if (!label) return;
     label.textContent = message;
     label.style.color = isError ? '#9b2929' : '#695633';
+  }
+
+  async function ensureChannel() {
+    // Kanal khusus Android: bisa dilihat dalam Pengaturan > Notifikasi aplikasi.
+    await LocalNotifications.createChannel({
+      id: channelId,
+      name: 'Pengingat Ibadah DAWAAM',
+      description: 'Pengingat ibadah dan tes notifikasi DAWAAM',
+      importance: 4,
+      vibration: true,
+      visibility: 1,
+      sound: 'dawaam_chime.wav'
+    });
   }
 
   function todayKey() {
@@ -70,6 +85,7 @@ if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
     return {
       id: baseId + i,
       title: 'DAWAAM • ' + name,
+      channelId,
       body: 'Saatnya menjaga kebiasaan baik. Mulai dari yang mampu.',
       schedule: { on, allowWhileIdle: true },
       isExactNotification: false,
@@ -86,6 +102,7 @@ if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
         say('Notifikasi belum diizinkan. Klik Aktifkan Notifikasi Android.');
         return;
       }
+      await ensureChannel();
       const { reminders, targets, special } = await readData();
       const pending = await LocalNotifications.getPending();
       const ours = (pending.notifications || [])
@@ -119,20 +136,90 @@ if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
     } catch (error) { say('Tidak dapat mengaktifkan notifikasi: ' + (error?.message || ''),true); }
   }
 
+  async function checkStatus() {
+    try {
+      const [permission, enabled, pending, delivered, channels] = await Promise.all([
+        LocalNotifications.checkPermissions(),
+        LocalNotifications.areEnabled(),
+        LocalNotifications.getPending(),
+        LocalNotifications.getDeliveredNotifications(),
+        LocalNotifications.listChannels()
+      ]);
+      const ourChannel = (channels.channels || []).find(ch => ch.id === channelId);
+      const pendingList = (pending.notifications || []);
+      const testPending = pendingList.some(n => n.id === testId);
+      const deliveredTest = (delivered.notifications || []).some(n => n.id === immediateId || n.id === testId);
+      let msg =
+        'Izin notifikasi: ' + (permission.display === 'granted' ? 'DIIZINKAN' : 'BELUM DIIZINKAN') +
+        '\nNotifikasi sistem: ' + (enabled.value ? 'AKTIF' : 'NONAKTIF') +
+        '\nKanal DAWAAM: ' + (!ourChannel ? 'BELUM DIBUAT' : Number(ourChannel.importance) === 0 ? 'DIBLOKIR' : 'AKTIF') +
+        '\nUji terjadwal: ' + (testPending ? 'TERDAFTAR' : 'TIDAK ADA') +
+        '\nUji di panel notifikasi: ' + (deliveredTest ? 'TERLIHAT SISTEM' : 'BELUM TERDETEKSI');
+      if (permission.display !== 'granted' || !enabled.value || Number(ourChannel?.importance) === 0) {
+        msg += '\nBuka Pengaturan Android > Aplikasi > DAWAAM Notifikasi Uji > Notifikasi dan izinkan.';
+      }
+      say(msg, permission.display !== 'granted' || !enabled.value);
+    } catch(error) {
+      say('Pemeriksaan status gagal: ' + (error?.message || String(error)), true);
+    }
+  }
+
+  async function testNow() {
+    try {
+      const permission = await LocalNotifications.requestPermissions();
+      if (permission.display !== 'granted') {
+        say('Izin notifikasi belum aktif. Izinkan lewat Pengaturan Android.', true);
+        return;
+      }
+      await ensureChannel();
+      await LocalNotifications.cancel({notifications: [{id: immediateId}]});
+      const result = await LocalNotifications.schedule({notifications: [{
+        id: immediateId,
+        title: 'DAWAAM • Tes langsung',
+        body: 'Jika pesan ini muncul, izin dan kanal notifikasi bekerja.',
+        channelId,
+        foreground: true,
+        autoCancel: true,
+        isExactNotification: false
+      }]});
+      say('Tes langsung dikirim. Geser bilah notifikasi HP ke bawah untuk memeriksanya.' +
+        (result.warning ? '\nCatatan: ' + result.warning : ''));
+    } catch(error) {
+      say('Tes langsung gagal: ' + (error?.message || String(error)), true);
+    }
+  }
+
   async function testNotification() {
     try {
       const permission = await LocalNotifications.requestPermissions();
-      if (permission.display !== 'granted') { say('Izinkan notifikasi terlebih dahulu.',true); return; }
-      await LocalNotifications.cancel({ notifications: [{ id: testId }] });
-      await LocalNotifications.schedule({ notifications: [{
+      if (permission.display !== 'granted') {
+        say('Izin notifikasi belum diizinkan. Izinkan melalui pengaturan aplikasi Android.', true);
+        return;
+      }
+      await ensureChannel();
+      await LocalNotifications.cancel({notifications: [{id: testId}]});
+      const when = new Date(Date.now() + 2 * 60 * 1000);
+      const result = await LocalNotifications.schedule({notifications: [{
         id: testId,
-        title: 'DAWAAM • Uji notifikasi',
-        body: 'Pengingat lokal DAWAAM berhasil.',
-        schedule: { at: new Date(Date.now() + 90 * 1000), allowWhileIdle: true },
+        title: 'DAWAAM • Uji pengingat terjadwal',
+        body: 'Pengingat lokal telah dijalankan tanpa membuka DAWAAM.',
+        channelId,
+        autoCancel: true,
+        schedule: {at: when, allowWhileIdle: true},
         isExactNotification: false
-      }] });
-      say('Uji dijadwalkan sekitar 90 detik. Tutup aplikasi dan periksa notifikasi. Waktu dapat bergeser karena optimasi baterai.');
-    } catch (error) { say('Uji gagal: ' + (error?.message || ''),true); }
+      }]});
+      const pending = await LocalNotifications.getPending();
+      const recorded = (pending.notifications || []).some(n => n.id === testId);
+      if (!recorded) {
+        say('Android tidak menampilkan uji dalam daftar terjadwal. Klik Periksa Status dan kirim screenshot.', true);
+        return;
+      }
+      say('✓ Uji TERDAFTAR untuk sekitar ' + when.toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'}) +
+        '. Tekan Home, jangan Paksa Berhenti. Android bisa menunda alarm yang tidak presisi.' +
+        (result.warning ? '\nCatatan: ' + result.warning : ''));
+    } catch(error) {
+      say('Penjadwalan gagal: ' + (error?.message || String(error)), true);
+    }
   }
 
   async function main() {
@@ -141,31 +228,48 @@ if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
     const panel = document.createElement('div');
     panel.className = 'notice';
     const title = document.createElement('strong');
-    title.textContent = 'Notifikasi Android saat aplikasi ditutup';
+    title.textContent = 'Uji Notifikasi Android • Diagnostik';
     title.style.display = 'block';
-    title.style.marginBottom = '9px';
+    title.style.marginBottom = '10px';
     const enable = document.createElement('button');
     enable.type = 'button';
-    enable.textContent = 'Aktifkan Notifikasi Android';
+    enable.textContent = '1. Aktifkan Notifikasi';
     enable.className = 'primary';
-    enable.style.marginRight = '7px';
+    const now = document.createElement('button');
+    now.type = 'button';
+    now.textContent = '2. Uji Sekarang';
     const test = document.createElement('button');
     test.type = 'button';
-    test.textContent = 'Uji 90 Detik';
+    test.textContent = '3. Uji 2 Menit';
+    const statusButton = document.createElement('button');
+    statusButton.type = 'button';
+    statusButton.textContent = 'Periksa Status';
+    const controls = document.createElement('div');
+    controls.style.cssText = 'display:flex;flex-wrap:wrap;gap:7px;margin-top:8px';
+    controls.append(enable, now, test, statusButton);
     label = document.createElement('p');
     label.className = 'muted';
+    label.style.whiteSpace = 'pre-line';
     label.setAttribute('role','status');
-    label.textContent = 'Pengingat diatur melalui jam yang kamu simpan. Izin notifikasi diperlukan.';
-    panel.append(title, enable, test, label);
+    label.textContent = 'Mulai dengan tombol Aktifkan Notifikasi, kemudian Uji Sekarang. Lihat juga panel notifikasi HP.';
+    panel.append(title, controls, label);
     pengingat.append(panel);
     enable.addEventListener('click', activate);
+    now.addEventListener('click', testNow);
     test.addEventListener('click', testNotification);
+    statusButton.addEventListener('click', checkStatus);
     for (const id of ['saveReminders','saveTargets','haid','restoreBackup']) {
       document.getElementById(id)?.addEventListener('click', scheduleSyncSoon);
+      document.getElementById(id)?.addEventListener('change', scheduleSyncSoon);
     }
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) scheduleSyncSoon();
     });
+    LocalNotifications.addListener('localNotificationReceived', notification => {
+      if (notification.id === immediateId || notification.id === testId) {
+        say('✓ Android telah mengirim uji notifikasi. Tarik panel notifikasi untuk melihat hasilnya.');
+      }
+    }).catch(error => console.warn('Listener notifikasi gagal:', error));
     if (localStorage.getItem(optInKey) === 'yes') {
       setTimeout(sync, 1800);
     }
