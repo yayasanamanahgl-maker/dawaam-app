@@ -1,6 +1,6 @@
 {
-  "appId": "id.dawaam.notificationtest",
-  "appName": "DAWAAM Notifikasi Uji",
+  "appId": "id.dawaam.tilawahcheck",
+  "appName": "DAWAAM Tilawah Uji",
   "webDir": "www",
   "android": {
     "allowMixedContent": false
