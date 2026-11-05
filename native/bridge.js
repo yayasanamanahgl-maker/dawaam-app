@@ -28,8 +28,7 @@ if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
       description: 'Pengingat ibadah dan tes notifikasi DAWAAM',
       importance: 4,
       vibration: true,
-      visibility: 1,
-      sound: 'dawaam_chime.wav'
+      visibility: 1
     });
   }
 
@@ -132,6 +131,7 @@ if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
         return;
       }
       localStorage.setItem(optInKey, 'yes');
+      await ensureChannel();
       await sync();
     } catch (error) { say('Tidak dapat mengaktifkan notifikasi: ' + (error?.message || ''),true); }
   }
