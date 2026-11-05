@@ -9,7 +9,7 @@ permissions:
 jobs:
   android-debug:
     name: APK Android Uji
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - name: Ambil kode DAWAAM
@@ -24,7 +24,9 @@ jobs:
           distribution: temurin
           java-version: '21'
       - name: Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
       - name: Python untuk ikon Android
         uses: actions/setup-python@v5
         with:
