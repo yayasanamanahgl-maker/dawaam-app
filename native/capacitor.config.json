@@ -1,6 +1,6 @@
 {
-  "appId": "id.dawaam.app",
-  "appName": "DAWAAM",
+  "appId": "id.dawaam.notificationtest",
+  "appName": "DAWAAM Notifikasi Uji",
   "webDir": "www",
   "android": {
     "allowMixedContent": false
