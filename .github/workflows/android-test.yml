@@ -1,0 +1,57 @@
+name: Bangun DAWAAM Android (Uji)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  android-debug:
+    name: APK Android Uji
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Ambil kode DAWAAM
+        uses: actions/checkout@v4
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Paket Android dan kode web offline
+        working-directory: native
+        run: |
+          npm install --no-fund --no-audit
+          npm run prepare:web
+          npm run build:bridge
+          npx cap add android
+          npx cap sync android
+      - name: Ikon DAWAAM hitam emas
+        run: |
+          python3 -m pip install --user Pillow
+          python3 native/app_icon.py
+      - name: Build APK
+        working-directory: native/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+      - name: Berkas APK langsung, bukan ZIP
+        run: |
+          cp native/android/app/build/outputs/apk/debug/app-debug.apk DAWAAM-Android-Uji.apk
+          test -s DAWAAM-Android-Uji.apk
+      - name: Publikasikan APK uji ke GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v0.3.0-android-uji-${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" DAWAAM-Android-Uji.apk \
+            --title "DAWAAM Android • Uji ${GITHUB_RUN_NUMBER}" \
+            --notes "APK uji untuk pengecekan notifikasi lokal. Ditandatangani menggunakan debug key build sementara; bukan rilis produksi. Data ibadah pribadi tidak disertakan. Buat cadangan data sebelum menginstal aplikasi baru." \
+            --prerelease
