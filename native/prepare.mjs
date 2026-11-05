@@ -10,6 +10,8 @@ let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 if (!html.includes('id="pengingat"')) throw new Error('Bagian pengingat DAWAAM tidak ditemukan');
 // Dalam paket Android semua aset sudah lokal. Sembunyikan tombol instal PWA di versi APK.
 html = html.replace('</head>', '<style>section[aria-label="Status aplikasi offline"]{display:none!important}</style>\n</head>');
+html = html.replace('Pengingat ini hanya terlihat ketika halaman DAWAAM sedang terbuka. Ini <strong>bukan</strong> alarm atau notifikasi yang tetap berbunyi saat browser ditutup.',
+  'Di aplikasi Android ini, aktifkan notifikasi lokal di panel Pengingat Android, lalu periksa bahwa jadwal benar-benar terdaftar.');
 html = html.replace('</body>', '<script defer src="./native-bridge.js"></script>\n</body>');
 fs.writeFileSync(path.join(out, 'index.html'), html);
 for (const name of ['icon-192.jpg','icon-512.jpg']) {
