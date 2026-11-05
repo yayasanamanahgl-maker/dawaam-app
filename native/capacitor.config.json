@@ -1,0 +1,13 @@
+{
+  "appId": "id.dawaam.app",
+  "appName": "DAWAAM",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "iconColor": "#B98932"
+    }
+  }
+}
